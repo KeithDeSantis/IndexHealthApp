@@ -102,6 +102,7 @@ require([
             console.warn(e);
             $('.error').show();
             $('#error_details').show();;
+            $('#error_details').show();;
             errText += (e.toString() === '[object Object]') ? '' : e.toString();
             if (e.hasOwnProperty('status')) errText += `<br>[${e.status}] `;
             if (e.hasOwnProperty('responseText')) errText += e.responseText;
@@ -113,6 +114,20 @@ require([
     // ---------------------
     // App helpers
     // ---------------------
+
+    // Helper function that takes in the value string, unit chosen from the dropdown, and 
+    // custom input string and resolves them all to a splunk valid time specifier for the macro
+    // TODO input cleaning to make sure the valueEntered is a number
+    function resolveThresholdValue(valueEntered, unitChosen, customInput) {
+        // If customInput has anything in it, we use that and assume the user has inputted a valid Splunk time modifier
+        if(customInput) { return '\"-' + customInput + '\"'; }
+
+        // If the user didn't enter a value or a customInput, we return an empty string so it evaluates to false
+        if(!valueEntered) { return ''; }
+        
+        // If not, then we construct the time modifier based on valueEntered and unitChosen
+        return '\"-' + valueEntered + unitChosen + '\"';
+    }
 
     // Helper function that takes in the value string, unit chosen from the dropdown, and 
     // custom input string and resolves them all to a splunk valid time specifier for the macro
