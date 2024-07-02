@@ -9,6 +9,7 @@ input {
 #setup_button {
     margin-top: 15px;
     background-color: green;
+    color: white;
 }
 
 .success {

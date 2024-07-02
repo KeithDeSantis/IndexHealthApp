@@ -10,32 +10,115 @@ https://docs.splunk.com/Documentation/Splunk/latest/Viz/PanelreferenceforSimplif
            stylesheet='styles/setup_page.css'
            hideTitle='true'
            version='1.1'>
+    <label>Configuration</label>
     <row>
         <panel>
             <html>
                 <div id='main_container'>
                     <h3>Index Health Setup Page</h3>
                     <div>
-                        <div class='text'>
-                            <span>Enter common indices:</span>
-                            <input id='common_indices_input' value='(*)'></input>
-                        </div>
-                        <div class='text'>
-                            <span>Enter common index recent window:</span>
-                            <input id='com_ind_recent_input' value='"-10s@s"'></input>
-                        </div>
-                        <div class='text'>
-                            <span>Enter common index quiet window:</span>
-                            <input id='com_ind_quiet_input' value='"-60s@s"'></input>
-                        </div>
-                        <div class='text'>
-                            <span>Enter uncommon index recent window:</span>
-                            <input id='uncom_ind_recent_input' value='"-5m@m"'></input>
-                        </div>
-                        <div class='text'>
-                            <span>Enter uncommon index quiet window:</span>
-                            <input id='uncom_ind_quiet_input' value='"-10m@m"'></input>
-                        </div>
+                        <h4>Common Indices</h4>
+                        <p>
+                            Enter a comma separated list of indices in your environment that you would consider the noisier/more common ones.
+                        </p>
+                        <table id="common-indices-table">
+                            <tr>
+                                <th class="table-header">Macro</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr class="input-row">
+                                <td>
+                                    <span>Common Indices:</span>
+                                </td>
+                                <td>
+                                    <input id='common_indices_input'></input>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div>
+                        <h4>Status Thresholds</h4>
+                        <p>
+                            Next we will define the thresholds you would like to use to determine the "status" of a given index, that is, whether the index has recently received a log, has been quiet, or seems to be missing. The separation between common and uncommon indices allows you to apply different thresholds to your noisier indices than your less talkative ones. This way for example, if your "firewall" index is constantly receiving logs, you can consider it "quiet" if it hasn't seen a log in 10 minutes. But, say your "network_changes" index only sees a log once a day, it instead will use the "uncommon" thresholds, which may mark an index as quiet only when it hasn't received a log in 3 days.
+                        </p>
+                        <p>
+                            Please set the values you would like to use for your thresholds. The "Recent Window" values will mark an index as "Seen Recently" if a log has been seen within the timeframe. The "Quiet Window" will mark the index as quiet if the latest log is beyond the Recent Window but before the Quiet Window. If the latest log is older than the Quiet Window then the index will be marked as missing. The "Common" values will apply to the indices you defined above in the common_indices macro. All other indices will have the uncommon values applied to them.
+                        </p>
+                        <p>
+                            For each threshold, enter a numerical value in the value section, and choose a unit of time from the unit dropdown. If you want to define a custom time frame, enter a valid Splunk time modifier in the "Custom" column.
+                        </p>
+                        <table id="thresholds-table">
+                            <tr>
+                                <th class="table-header">Macro</th>
+                                <th>Value</th>
+                                <th>Unit</th>
+                                <th>Custom</th>
+                            </tr>
+                            <tr class="input-row">
+                                <td>
+                                    <span>Common Index Recent Threshold:</span>
+                                </td>
+                                <td>
+                                    <input id='com_ind_recent_input'></input>
+                                </td>
+                                <td>
+                                    <select id='com_ind_recent_dropdown'>
+                                        <!-- Options will be inject by JS -->
+                                    </select>
+                                </td>
+                                <td>
+                                    <input id='custom_com_ind_recent_input' value=''></input>
+                                </td>
+                            </tr> 
+                            <tr class="input-row">
+                                <td>
+                                    <span>Common Index Quiet Threshold:</span>
+                                </td>
+                                <td>
+                                    <input id='com_ind_quiet_input'></input>
+                                </td>
+                                <td>
+                                    <select id='com_ind_quiet_dropdown'>
+                                         <!-- Options will be inject by JS -->
+                                    </select>
+                                </td>
+                                <td>
+                                    <input id='custom_com_ind_quiet_input' value=''></input>
+                                </td>
+                            </tr> 
+                            <tr class="input-row">
+                                <td>
+                                    <span>Uncommon Index Recent Threshold:</span>
+                                </td>
+                                <td>
+                                    <input id='uncom_ind_recent_input'></input>
+                                </td>
+                                <td>
+                                    <select id='uncom_ind_recent_dropdown'>
+                                         <!-- Options will be inject by JS -->
+                                    </select>
+                                </td>
+                                <td>
+                                    <input id='custom_uncom_ind_recent_input' value=''></input>
+                                </td>
+                            </tr> 
+                            <tr class="input-row">
+                                <td>
+                                    <span>Uncommon Index Quiet Threshold:</span>
+                                </td>
+                                <td>
+                                    <input id='uncom_ind_quiet_input'></input>
+                                </td>
+                                <td>
+                                    <select id='uncom_ind_quiet_dropdown'>
+                                         <!-- Options will be inject by JS -->
+                                    </select>
+                                </td>
+                                <td>
+                                    <input id='custom_uncom_ind_quiet_input' value=''></input>
+                                </td>
+                            </tr> 
+                        </table>
                         <!-- Complete Setup button will call the completeSetup() function
                              within javascript/setup_page.js -->
                         <button id='setup_button'>Complete Setup</button>

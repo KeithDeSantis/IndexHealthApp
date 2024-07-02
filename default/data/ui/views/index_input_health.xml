@@ -30,15 +30,15 @@
 				],
 				"StatusRowBackgroundColorsEditorConfig": [
 					{
-						"match": "3 - Missing",
+						"match": "Missing",
 						"value": "#D41F1F"
 					},
 					{
-						"match": "2 - Quiet",
+						"match": "Quiet",
 						"value": "#d97a0d"
 					},
 					{
-						"match": "1 - Seen Recently",
+						"match": "Seen Recently",
 						"value": "#118832"
 					}
 				]
@@ -70,15 +70,15 @@
 				],
 				"StatusRowBackgroundColorsEditorConfig": [
 					{
-						"match": "3 - Missing",
+						"match": "Missing",
 						"value": "#D41F1F"
 					},
 					{
-						"match": "2 - Quiet",
+						"match": "Quiet",
 						"value": "#d97a0d"
 					},
 					{
-						"match": "1 - Seen Recently",
+						"match": "Seen Recently",
 						"value": "#118832"
 					}
 				]
@@ -90,14 +90,14 @@
 		"ds_LEqZU7ud": {
 			"type": "ds.search",
 			"options": {
-				"query": "| rest /services/data/indexes\n| search title!=\"_*\" title IN `common_indices` maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `common_index_recent_window`) <= latest, \"1 - Seen Recently\", relative_time(now(), `common_index_quiet_window`) < latest, \"2 - Quiet\", relative_time(now(), `common_index_quiet_window`) > latest, \"3 - Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
+				"query": "| rest /services/data/indexes\n| search title!=\"_*\" title IN `common_indices` maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `common_index_recent_window`) <= latest, \"Seen Recently\", relative_time(now(), `common_index_quiet_window`) < latest, \"Quiet\", relative_time(now(), `common_index_quiet_window`) > latest, \"Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
 			},
 			"name": "Common_Indices_Base_Search"
 		},
 		"ds_PKWD10Lp_ds_LEqZU7ud": {
 			"type": "ds.search",
 			"options": {
-				"query": "| rest /services/data/indexes\n| search title!=\"_*\" NOT (title IN `common_indices`) maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `uncommon_index_recent_window`) <= latest, \"1 - Seen Recently\", relative_time(now(), `uncommon_index_quiet_window`) < latest, \"2 - Quiet\", relative_time(now(), `uncommon_index_quiet_window`) > latest, \"3 - Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
+				"query": "| rest /services/data/indexes\n| search title!=\"_*\" NOT (title IN `common_indices`) maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `uncommon_index_recent_window`) <= latest, \"Seen Recently\", relative_time(now(), `uncommon_index_quiet_window`) < latest, \"Quiet\", relative_time(now(), `uncommon_index_quiet_window`) > latest, \"Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
 			},
 			"name": "Uncommon_Indices_Base_Search"
 		}
