@@ -1,0 +1,3 @@
+<nav search_view="search">
+  <view name="index_input_health" default='true' />
+</nav>
