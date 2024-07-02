@@ -1,0 +1,5 @@
+1.0.0 (live)
+Initial release
+
+1.0.1
+Edited index_input_health.xml datasource search string to address edge case. When assigning status changed "<" to "<=" to avoid no status being applied when values were equal.
