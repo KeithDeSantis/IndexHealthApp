@@ -20,14 +20,51 @@ require([
     // Register .on( "click", handler ) for "Complete Setup" button
     $("#setup_button").click(completeSetup);
 
+    // Populate Unit dropdowns
+    let options = '<option value="s@s">Seconds</option> <option value="m@m">Minutes</option> <option value="h@h">Hours</option> <option value="d@d">Days</option><option value="w@w">Weeks</option><option value="M@M">Months</option><option value="y@y">Years</option>'
+    for (let i of document.getElementsByTagName('select')) {
+        i.innerHTML = options;
+    }
+
     // onclick function for "Complete Setup" button from setup_page_dashboard.xml
     async function completeSetup() {
-        const common_indices = $('#common_indices_input').val();
-        const com_ind_rec = $('#com_ind_recent_input').val();
-        const com_ind_quiet = $('#com_ind_quiet_input').val();
-        const uncom_ind_rec = $('#uncom_ind_recent_input').val();
-        const uncom_ind_quiet = $('#uncom_ind_quiet_input').val();
-        stage = "Entering try/catch";
+
+        // In case this is a second attempt to submit configurations after leaving some sections blank, reset border colors of inputs
+        for (let i of document.getElementsByTagName('input')) {
+            i.style.borderColor = "black";
+        }
+
+        const common_indices = "(" + $('#common_indices_input').val() + ")";
+        // Set values of thresholds based on if the "Custom" field was filled
+        const com_ind_rec = resolveThresholdValue($('#com_ind_recent_input').val(), $('#com_ind_recent_dropdown').val(), $('#custom_com_ind_recent_input').val());
+        const com_ind_quiet = resolveThresholdValue($('#com_ind_quiet_input').val(), $('#com_ind_quiet_dropdown').val(), $('#custom_com_ind_quiet_input').val());
+        const uncom_ind_rec = resolveThresholdValue($('#uncom_ind_recent_input').val(), $('#uncom_ind_recent_dropdown').val(), $('#custom_uncom_ind_recent_input').val());
+        const uncom_ind_quiet = resolveThresholdValue($('#uncom_ind_quiet_input').val(), $('#uncom_ind_quiet_dropdown').val(), $('#custom_uncom_ind_quiet_input').val());
+
+        // Verify all required fields were filled
+        if(!($('#common_indices_input').val() && com_ind_rec && com_ind_quiet && uncom_ind_rec && uncom_ind_quiet)) {
+            if (!$('#common_indices_input').val()) {
+                document.getElementById('common_indices_input').style.borderColor = "red";
+            }
+            if (!com_ind_rec) {
+                document.getElementById('com_ind_recent_input').style.borderColor = "red";
+                document.getElementById('custom_com_ind_recent_input').style.borderColor = "red";
+            }
+            if (!com_ind_quiet) {
+                document.getElementById('com_ind_quiet_input').style.borderColor = "red";
+                document.getElementById('custom_com_ind_quiet_input').style.borderColor = "red";
+            }
+            if (!uncom_ind_rec) {
+                document.getElementById('uncom_ind_recent_input').style.borderColor = "red";
+                document.getElementById('custom_uncom_ind_recent_input').style.borderColor = "red";
+            }
+            if (!uncom_ind_quiet) {
+                document.getElementById('uncom_ind_quiet_input').style.borderColor = "red";
+                document.getElementById('custom_uncom_ind_quiet_input').style.borderColor = "red";
+            }
+            return;
+        }
+
         try {
             // Initialize a Splunk Javascript SDK Service instance
             const http = new splunkjs.SplunkWebHttp();
@@ -35,23 +72,6 @@ require([
                 http,
                 appNamespace,
             );
-            // Get app.conf configuration
-            stage = 'Retrieving configurations SDK collection';
-            const configCollection = service.configurations(appNamespace);
-            await configCollection.fetch();
-            stage = `Retrieving app.conf values for ${appName}`;
-            const appConfig = configCollection.item('app');
-            await appConfig.fetch();
-            stage = `Retrieving app.conf [install] stanza values for ${appName}`;
-            const installStanza = appConfig.item('install');
-            await installStanza.fetch();
-            // Verify that app is not already configured
-            const isConfigured = installStanza.properties().is_configured;
-            if (isTrue(isConfigured)) {
-                console.warn(`App is configured already (is_configured=${isConfigured}), skipping setup page...`);
-                reloadApp(service);
-                redirectToApp();
-            }
 
             // Update all macros with inputted values
             // common_indices
@@ -81,8 +101,7 @@ require([
         } catch (e) {
             console.warn(e);
             $('.error').show();
-            $('#error_details').show();
-            let errText = `Error encountered during stage: ${stage}<br>`;
+            $('#error_details').show();;
             errText += (e.toString() === '[object Object]') ? '' : e.toString();
             if (e.hasOwnProperty('status')) errText += `<br>[${e.status}] `;
             if (e.hasOwnProperty('responseText')) errText += e.responseText;
@@ -94,6 +113,20 @@ require([
     // ---------------------
     // App helpers
     // ---------------------
+
+    // Helper function that takes in the value string, unit chosen from the dropdown, and 
+    // custom input string and resolves them all to a splunk valid time specifier for the macro
+    // TODO input cleaning to make sure the valueEntered is a number
+    function resolveThresholdValue(valueEntered, unitChosen, customInput) {
+        // If customInput has anything in it, we use that and assume the user has inputted a valid Splunk time modifier
+        if(customInput) { return '\"-' + customInput + '\"'; }
+
+        // If the user didn't enter a value or a customInput, we return an empty string so it evaluates to false
+        if(!valueEntered) { return ''; }
+        
+        // If not, then we construct the time modifier based on valueEntered and unitChosen
+        return '\"-' + valueEntered + unitChosen + '\"';
+    }
 
     async function reloadApp(service) {
         // In order for the app to register that it has been configured

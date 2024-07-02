@@ -1,3 +1,4 @@
 <nav search_view="search">
   <view name="index_input_health" default='true' />
+  <view name="setup_page_dashboard"/>
 </nav>
