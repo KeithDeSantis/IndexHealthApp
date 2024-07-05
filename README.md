@@ -3,7 +3,7 @@ A Splunk App to give Administrators a high level view of the health of their ind
 
 ___
 
-### Version: 1.0.0
+### Version: 1.1.0
 ___
 
 This app provides a one-stop-shop to monitor the activity of your indices and ensure they are receiving logs as expected. It also includes a saved alert that will trigger when one of your common indices has been silent for a given period of time (it is disabled by default). The alert can easily be translated into a Notable if you utilize Enterprise Security in your environment. At the moment the application does not monitor internal Splunk indices (`_*`) by default in order to avoid clutter, but a future version will allow for this to be changed in the app configuration.
