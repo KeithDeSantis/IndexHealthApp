@@ -1,0 +1,170 @@
+
+<dashboard version="2" theme="dark">
+    <label>Index Input Health</label>
+    <description></description>
+    <definition><![CDATA[
+{
+	"visualizations": {
+		"viz_NNichTTP": {
+			"type": "splunk.table",
+			"options": {
+				"columnFormat": {
+					"Status": {
+						"data": "> table | seriesByName(\"Status\") | formatByType(StatusColumnFormatEditorConfig)",
+						"rowColors": "> table | seriesByName('Status') | pick(StatusRowColorsEditorConfig)",
+						"rowBackgroundColors": "> table | seriesByName(\"Status\") | matchValue(StatusRowBackgroundColorsEditorConfig)"
+					}
+				}
+			},
+			"dataSources": {
+				"primary": "ds_LEqZU7ud"
+			},
+			"context": {
+				"StatusColumnFormatEditorConfig": {
+					"string": {
+						"unitPosition": "after"
+					}
+				},
+				"StatusRowColorsEditorConfig": [
+					"#ffffff"
+				],
+				"StatusRowBackgroundColorsEditorConfig": [
+					{
+						"match": "Missing",
+						"value": "#D41F1F"
+					},
+					{
+						"match": "Quiet",
+						"value": "#d97a0d"
+					},
+					{
+						"match": "Seen Recently",
+						"value": "#118832"
+					}
+				]
+			},
+			"title": "Common Indices (24 hrs)"
+		},
+		"viz_3M9NNthN": {
+			"type": "splunk.table",
+			"options": {
+				"columnFormat": {
+					"Status": {
+						"data": "> table | seriesByName(\"Status\") | formatByType(StatusColumnFormatEditorConfig)",
+						"rowColors": "> table | seriesByName('Status') | pick(StatusRowColorsEditorConfig)",
+						"rowBackgroundColors": "> table | seriesByName(\"Status\") | matchValue(StatusRowBackgroundColorsEditorConfig)"
+					}
+				}
+			},
+			"dataSources": {
+				"primary": "ds_PKWD10Lp_ds_LEqZU7ud"
+			},
+			"context": {
+				"StatusColumnFormatEditorConfig": {
+					"string": {
+						"unitPosition": "after"
+					}
+				},
+				"StatusRowColorsEditorConfig": [
+					"#ffffff"
+				],
+				"StatusRowBackgroundColorsEditorConfig": [
+					{
+						"match": "Missing",
+						"value": "#D41F1F"
+					},
+					{
+						"match": "Quiet",
+						"value": "#d97a0d"
+					},
+					{
+						"match": "Seen Recently",
+						"value": "#118832"
+					}
+				]
+			},
+			"title": "Uncommon Indices (1 year)"
+		}
+	},
+	"dataSources": {
+		"ds_LEqZU7ud": {
+			"type": "ds.search",
+			"options": {
+				"query": "| rest /services/data/indexes\n| search title!=\"_*\" title IN `common_indices` maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `common_index_recent_window`) <= latest, \"Seen Recently\", relative_time(now(), `common_index_quiet_window`) <= latest, \"Quiet\", relative_time(now(), `common_index_quiet_window`) > latest, \"Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
+			},
+			"name": "Common_Indices_Base_Search"
+		},
+		"ds_PKWD10Lp_ds_LEqZU7ud": {
+			"type": "ds.search",
+			"options": {
+				"query": "| rest /services/data/indexes\n| search title!=\"_*\" NOT (title IN `common_indices`) maxTime!=\"\"\n| stats max(maxTime) by title\n| rename max(maxTime) AS LastSeen\n| eval latest=strptime(LastSeen, \"%Y-%m-%dT%H:%M:%S+%Q\")\n| eval LastLogReceived = strftime(latest, \"%m-%d-%Y %H:%M:%S\")\n| eval Status=case(relative_time(now(), `uncommon_index_recent_window`) <= latest, \"Seen Recently\", relative_time(now(), `uncommon_index_quiet_window`) <= latest, \"Quiet\", relative_time(now(), `uncommon_index_quiet_window`) > latest, \"Missing\")\n| eval HrsSinceLastLog = round((now()-latest)/3600,2)\n| sort - HrsSinceLastLog\n| table title LastLogReceived HrsSinceLastLog Status"
+			},
+			"name": "Uncommon_Indices_Base_Search"
+		}
+	},
+	"defaults": {
+		"dataSources": {
+			"ds.search": {
+				"options": {
+					"queryParameters": {
+						"latest": "$global_time.latest$",
+						"earliest": "$global_time.earliest$"
+					}
+				}
+			}
+		}
+	},
+	"inputs": {
+		"input_global_trp": {
+			"type": "input.timerange",
+			"options": {
+				"token": "global_time",
+				"defaultValue": "-24h@h,now"
+			},
+			"title": "Global Time Range"
+		}
+	},
+	"layout": {
+		"type": "grid",
+		"options": {
+			"width": 1440,
+			"height": 960
+		},
+		"structure": [
+			{
+				"item": "viz_NNichTTP",
+				"type": "block",
+				"position": {
+					"x": 0,
+					"y": 0,
+					"w": 723,
+					"h": 400
+				}
+			},
+			{
+				"item": "viz_3M9NNthN",
+				"type": "block",
+				"position": {
+					"x": 723,
+					"y": 0,
+					"w": 717,
+					"h": 400
+				}
+			}
+		],
+		"globalInputs": [
+			"input_global_trp"
+		]
+	},
+	"description": "",
+	"title": "Index Input Health"
+}
+    ]]></definition>
+    <meta type="hiddenElements"><![CDATA[
+{
+	"hideEdit": false,
+	"hideOpenInSearch": false,
+	"hideExport": false
+}
+    ]]></meta>
+</dashboard>
