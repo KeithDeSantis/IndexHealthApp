@@ -1,6 +1,6 @@
 "use strict";
 
-var app_name = "./REACTIndexApp";
+var app_name = "./REACTIndexHealthApp";
 
 // This is an undocumented Splunk solution for how to include javascript logic
 // from other files.

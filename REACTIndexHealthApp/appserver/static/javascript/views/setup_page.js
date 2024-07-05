@@ -6,7 +6,7 @@ import * as Config from './setup_configuration.js'
 const MACROS_CONF = 'macros'
 
 export async function perform(splunk_js_sdk, macros) {
-    var app_name = "REACTIndexApp";
+    var app_name = "REACTIndexHealthApp";
 
     var application_name_space = {
         owner: "nobody",
