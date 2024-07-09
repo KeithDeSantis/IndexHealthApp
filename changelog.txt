@@ -1,7 +1,7 @@
-1.0.0 (live)
+1.0.0
 Initial release
 
-1.1.0 
+1.1.0 (live)
 * Refactored app to be built using REACT.
 * Edited index_input_health.xml datasource search string to address edge case. When assigning status changed "<" to "<=" to avoid no status being applied when values were equal.
 * Fixed typos in Index Input Health Dashboard to not include timeframes in table titles.
