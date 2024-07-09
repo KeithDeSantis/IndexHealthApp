@@ -179,24 +179,6 @@ define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
           e("div", { "class" : "error" }, "Issue encountered during setup, details below:"),
           e("code", { "id" : "error_details"})
         ])
-        // e("h2", null, "Macro Setup Page"),
-        // e("div", null, [
-        //   e("form", { onSubmit: this.handleSubmit }, [
-        //     e("label", null, [
-        //       "Macro Stanza",
-        //       e("input", { type: "text", name: "stanza", value: this.state.stanza, onChange: this.handleChange })
-        //     ]),
-        //     e("label", null, [
-        //       "Macro Args",
-        //       e("input", { type: "text", name: "args", value: this.state.args, onChange: this.handleChange })
-        //     ]),
-        //     e("label", null, [
-        //       "Macro Definition",
-        //       e("input", { type: "text", name: "definition", value: this.state.definition, onChange: this.handleChange })
-        //     ]),
-        //     e("input", { type: "submit", value: "Submit" })
-        //   ])
-        // ])
     }
   }
   return e(SetupPage);

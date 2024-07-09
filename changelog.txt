@@ -1,7 +1,8 @@
 1.0.0 (live)
 Initial release
 
-1.0.1
-Edited index_input_health.xml datasource search string to address edge case. When assigning status changed "<" to "<=" to avoid no status being applied when values were equal.
-
-1.1.0 Refactored app to be built using REACT. Separated into two folders, one for classic app and one for REACT app.
+1.1.0 
+* Refactored app to be built using REACT.
+* Edited index_input_health.xml datasource search string to address edge case. When assigning status changed "<" to "<=" to avoid no status being applied when values were equal.
+* Fixed typos in Index Input Health Dashboard to not include timeframes in table titles.
+* Removed "+%Q" timezone formatting from strptime command in dashboard search. Since different environments will have different timezones Splunk may return text with "+" or "-", this way it is simply ignored and won't fail to parse.
