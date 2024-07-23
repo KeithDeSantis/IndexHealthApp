@@ -7,6 +7,8 @@ ___
 ___
 
 This app provides a one-stop-shop to monitor the activity of your indices and ensure they are receiving logs as expected. It also includes a saved alert that will trigger when one of your common indices has been silent for a given period of time (it is disabled by default). The alert can easily be translated into a Notable if you utilize Enterprise Security in your environment. At the moment the application does not monitor internal Splunk indices (`_*`) by default in order to avoid clutter, but a future version will allow for this to be changed in the app configuration.
+
+#### Note: If you are working in a distributed environment, it may take a bit after configuring the application for the searches that power the dashboard to work, as they search peers need to replicate across one another.
 ___
 ## Usage
 This app is intended to be installed on a search head. For installation instructions, follow [Splunk's documentation on installing apps from .tgz files](https://docs.splunk.com/Documentation/AddOns/released/Overview/Distributedinstall).
