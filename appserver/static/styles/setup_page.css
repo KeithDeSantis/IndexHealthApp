@@ -28,3 +28,13 @@ input {
     margin-top: 15px;
     display: none;
 }
+
+.parameterCell {
+    text-align: center;
+    width: 20%;
+}
+
+.descriptionCell {
+    text-align: center;
+    width: 60%;
+}

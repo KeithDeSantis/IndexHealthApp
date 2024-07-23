@@ -3,7 +3,7 @@ A Splunk App to give Administrators a high level view of the health of their ind
 
 ___
 
-### Version: 1.1.0
+### Version: 1.2.0
 ___
 
 This app provides a one-stop-shop to monitor the activity of your indices and ensure they are receiving logs as expected. It also includes a saved alert that will trigger when one of your common indices has been silent for a given period of time (it is disabled by default). The alert can easily be translated into a Notable if you utilize Enterprise Security in your environment. At the moment the application does not monitor internal Splunk indices (`_*`) by default in order to avoid clutter, but a future version will allow for this to be changed in the app configuration.
@@ -31,6 +31,12 @@ For example, if you have a `firewall` index that is receiving hundreds of logs a
 
 * <b>`common_indices`</b> - A comma separated list of the most common (or "noisiest") indices in your environment. (All indices not included in this list will be considered uncommon_indices).
     * Example: `firewall, nix, windows, web`
+
+* <b>`known_missing_indices`</b> - A comma separated list of indices that are retired or no longer receiving logs, but are maintained for searchability. Indices included in this macro will be filtered out of the dashboard views to avoid cluttering the tables with old indices.
+    * Example: `windows7, floppydisk_data`
+
+* <b>`last_log_time_format`</b> - A Splunk time format string to customize how the "LastLogReceived" time in the dashboard will be displayed. Defaults to using "%m-%d-%Y %H:%M:%S".
+    * Example: `%Y-%m-%d`
 
 * <b>`common_index_recent_window`</b> - A valid [Splunk time modifier](https://docs.splunk.com/Documentation/Splunk/9.2.1/Search/Specifytimemodifiersinyoursearch) representing the timeframe that you want to consider "Seen Recently" for common indices.
     * Example: Having this set to `2h` would mean that the dashboard and alert will consider a common index "Seen Recently" if its latest log was received sometime within the past two hours.

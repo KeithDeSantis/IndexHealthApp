@@ -1,12 +1,3 @@
-
-/**
- * This is an example using pure react, with no JSX
- * If you would like to use JSX, you will need to use Babel to transpile your code
- * from JSK to JS. You will also need to use a task runner/module bundler to
- * help build your app before it can be used in the browser.
- * Some task runners/module bundlers are : gulp, grunt, webpack, and Parcel
- */
-
 import * as Setup from "./setup_page.js";
 
 define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
@@ -66,29 +57,80 @@ define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
     }
   }
 
+    // IndexListConfigInput REACT class ---------------------------------------------------------
+    class ConfigurationParametersTable extends react.Component {
+      constructor(props) {
+        super(props);
+        this.state = props;
+      }
+
+      render () {
+        const updateIndicesMacroValue = this.state['updateIndicesMacroValue'];
+        return e("div", null, [
+          e("h4", null, "Configuration Parameters"),
+          e("table", null, [
+            e("tr", null, [
+              e("th", { "class" : "table-header" }, "Macro"),
+              e("th", null, "Value"),
+              e("th", null, "Description")
+            ]),
+            e("tr", { "class" : "input-row" }, [
+              e("td", { 'class' : 'parameterCell' }, [
+                e("span", null, 'Common Indices:')
+              ]),
+              e("td", { 'class' : 'parameterCell' }, [
+                e("input", { 'id' : 'common_indices', 'onChange' : (e) => updateIndicesMacroValue(e) })
+              ]),
+              e("td", { 'class' : 'descriptionCell' }, "Enter a comma separated list of indices in your environment that you would consider the noisier/more common ones.")
+            ]),
+            e("tr", { "class" : "input-row" }, [
+              e("td", { 'class' : 'parameterCell' }, [
+                e("span", null, 'Known Missing Indices:')
+              ]),
+              e("td", { 'class' : 'parameterCell' }, [
+                e("input", { 'id' : 'known_missing_indices', 'onChange' : (e) => updateIndicesMacroValue(e) })
+              ]),
+              e("td", { 'class' : 'descriptionCell' }, "Enter a comma separated list of indices in your environment that are known as \"missing\". These indices may be retired or no longer populated but are maintained for searchability. Putting them in this list will filter them out from the dashboard view. Leave blank to filter out no indices.")
+            ]),
+            e("tr", { "class" : "input-row" }, [
+              e("td", { 'class' : 'parameterCell' }, [
+                e("span", null, 'Time Display Format:')
+              ]),
+              e("td", { 'class' : 'parameterCell' }, [
+                e("input", { 'id' : 'last_log_time_format', 'onChange' : (e) => updateIndicesMacroValue(e) })
+              ]),
+              e("td", { 'class' : 'descriptionCell' }, "Enter a valid Splunk time format to display when the latest log of each index was received. If left blank the format \"%m-%d-%Y %H:%M:%S\" will be used.")
+            ])
+          ])
+        ]);
+      }
+    }
+
   // SetupPage REACT class ---------------------------------------------------------
   class SetupPage extends react.Component {
     constructor(props) {
       super(props);
 
       this.state = {
-        'common_indices': '',
+        'common_indices': '*',
+        'known_missing_indices': '',
+        'last_log_time_format': '%m-%d-%Y %H:%M:%S',
         // Each macro has an entry that is a dictionary for each input needed for the definition, 
         'common_index_recent_window': {
-          'value': '',
+          'value': '10',
           'unit': 's@s',
           'custom': ''},
         'common_index_quiet_window': {
-          'value': '',
+          'value': '60',
           'unit': 's@s',
           'custom': ''},
         'uncommon_index_recent_window': {
-          'value': '',
-          'unit': 's@s',
+          'value': '5',
+          'unit': 'm@m',
           'custom': ''},
         'uncommon_index_quiet_window': {
-          'value': '',
-          'unit': 's@s',
+          'value': '10',
+          'unit': 'm@m',
           'custom': ''} 
       };
 
@@ -101,14 +143,48 @@ define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
 
     // Helper to keep the attributes of the window macros up to date in the state dictionary
     updateWindowMacroValue(event) {
+      var defaults = {
+        'common_index_recent_window': {
+          'value': '10',
+          'unit': 's@s',
+          'custom': ''},
+        'common_index_quiet_window': {
+          'value': '60',
+          'unit': 's@s',
+          'custom': ''},
+        'uncommon_index_recent_window': {
+          'value': '5',
+          'unit': 'm@m',
+          'custom': ''},
+        'uncommon_index_quiet_window': {
+          'value': '10',
+          'unit': 'm@m',
+          'custom': ''}
+      };
+
       let macro = event.target.id.split("-")[0];
       let attribute = event.target.id.split("-")[1];
-      this.state[macro][attribute] = event.target.value;
+      // If the field has been changed to empty then reset it to the default
+      if (event.target.value != '') {
+        this.state[macro][attribute] = event.target.value;
+      } else {
+        this.state[macro][attribute] = defaults[macro][attribute]; 
+      }
     }
 
     // Helper to keep common_indices macro up to date in the state dictionary
     updateIndicesMacroValue(event) {
-      this.state['common_indices'] = event.target.value;
+      var defaults = {
+        'common_indices': '*',
+        'known_missing_indices': '',
+        'last_log_time_format': '%m-%d-%Y %H:%M:%S'
+      };
+      // If the field has been changed to empty then reset it to the default
+      if (event.target.value != '') { 
+        this.state[event.target.id] = event.target.value;
+      } else {
+        this.state[event.target.id] = defaults[event.target.id];
+      }
     }
 
     // Helper to resolve the full macro definition when the submit button is clicked
@@ -122,10 +198,11 @@ define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
 
     async handleSubmit(event) {
       event.preventDefault();
-
       //TODO verify all inputs are filled in correctly
       const macros = {
-        'common_indices' : "(" + this.state['common_indices'] + ")",
+        'common_indices' : '(' + this.state['common_indices'] + ')',
+        'known_missing_indices' : '(' + this.state['known_missing_indices'] + ')',
+        'last_log_time_format' : '"' + this.state['last_log_time_format'] + '"',
         'common_index_recent_window' : this.resolveWindowMacroName("common_index_recent_window"),
         'common_index_quiet_window' : this.resolveWindowMacroName("common_index_quiet_window"),
         'uncommon_index_recent_window' : this.resolveWindowMacroName("uncommon_index_recent_window"),
@@ -138,24 +215,7 @@ define(["react", "splunkjs/splunk"], function(react, splunk_js_sdk){
     render() {
       return e("div", null, [
         e("h3", null, "Index Health Setup Page"),
-        e("div", null, [
-          e("h4", null, "Common Indices"),
-          e("p", null, "Enter a comma separated list of indices in your environment that you would consider the noisier/more common ones."),
-          e("table", { "id" : "common-indices-table" }, [
-            e("tr", null, [
-              e("th", { "class" : "table-header" }, "Macro"),
-              e("th", null, "Value")
-            ]),
-            e("tr", { "class" : "input-row" }, [
-              e("td", null, [
-                e("span", null, "Common Indices:")
-              ]),
-              e("td", null, [
-                e("input", { 'onChange' : (e) => this.updateIndicesMacroValue(e) })
-              ])
-            ])
-          ])
-        ]),
+        e(ConfigurationParametersTable, { 'updateIndicesMacroValue' : this.updateIndicesMacroValue }),
         e("div", null, [
           e("h4", null, "Status Thresholds"),
           e("p", null, "Next we will define the thresholds you would like to use to determine the \"status\" of a given index, that is, whether the index has recently received a log, has been quiet, or seems to be missing. The separation between common and uncommon indices allows you to apply different thresholds to your noisier indices than your less talkative ones. This way for example, if your \"firewall\" index is constantly receiving logs, you can consider it \"quiet\" if it hasn't seen a log in 10 minutes. But, say your \"network_changes\" index only sees a log once a day, it instead will use the \"uncommon\" thresholds, which may mark an index as quiet only when it hasn't received a log in 3 days."),
